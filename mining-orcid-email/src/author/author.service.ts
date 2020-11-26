@@ -7,7 +7,7 @@ export class AuthorService {
   constructor(private readonly httpService: HttpService) {}
   logger = new Logger(AuthorService.name);
 
-  async getAuthors(data: AuthorDto): Promise<AuthorResponseInterface> {
+  async getAuthors(data: AuthorDto): Promise<AuthorResponseInterface[]> {
     // talk to orcid here.
     // orcid client -> getAuthorInfo()
     // output -> processsed to send response to the API call.
@@ -23,6 +23,6 @@ export class AuthorService {
       pmcId: 3539452,
       title: 'The Development and Activity-Dependent Expression of Aggrecan in the Cat Visual Cortex',
     }
-    return authorResponse;
+    return [authorResponse];
   }
 }
