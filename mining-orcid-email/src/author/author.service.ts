@@ -1,10 +1,14 @@
 import { Injectable, HttpService, Logger } from '@nestjs/common';
+import { OrcidService } from '../orcid/orcid.service';
 import { AuthorDto } from './dto/author-input.dto';
 import { AuthorResponseInterface } from './dto/author-response.interface';
 
 @Injectable()
 export class AuthorService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService, 
+    private readonly orcidService: OrcidService
+  ) {}
   logger = new Logger(AuthorService.name);
 
   async getAuthors(data: AuthorDto): Promise<AuthorResponseInterface[]> {
@@ -23,6 +27,9 @@ export class AuthorService {
       pmcId: 3539452,
       title: 'The Development and Activity-Dependent Expression of Aggrecan in the Cat Visual Cortex',
     }
+    const orcid = '0000-0003-1455-3370';
+    const response = await this.orcidService.getOrcidEmail(orcid);
+    console.log(`response: ${JSON.stringify(response, null, 2)}`);
     return [authorResponse];
   }
 }

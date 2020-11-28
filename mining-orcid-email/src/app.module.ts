@@ -1,4 +1,5 @@
 import { Module, HttpModule } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthorController } from './author/author.controller';
@@ -8,6 +9,6 @@ import { AuthorModule } from './author/author.module';
 @Module({
   imports: [AuthorModule, HttpModule],
   controllers: [AppController, AuthorController],
-  providers: [AppService, AuthorService],
+  providers: [AppService, AuthorService, ConfigService],
 })
 export class AppModule {}
