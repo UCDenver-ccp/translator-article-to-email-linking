@@ -15,6 +15,12 @@ export class AuthorService {
     // talk to orcid here.
     // orcid client -> getAuthorInfo()
     // output -> processsed to send response to the API call.
+    const { pubMedIds } = data;
+	  for (let i = 0; i < pubMedIds.length; i++) {
+      console.log(pubMedIds[i]);
+      const orcidResponse = await this.orcidService.getOrcId(pubMedIds[i]);
+      console.log(orcidResponse)
+    }
     const author = {
       firstName: 'A.',
       lastName: 'Crocker-Buque',
@@ -29,7 +35,7 @@ export class AuthorService {
     }
     const orcid = '0000-0003-1455-3370';
     const response = await this.orcidService.getOrcidEmail(orcid);
-    console.log(`response: ${JSON.stringify(response, null, 2)}`);
+    //console.log(`response: ${JSON.stringify(response, null, 2)}`);
     return [authorResponse];
   }
 }
