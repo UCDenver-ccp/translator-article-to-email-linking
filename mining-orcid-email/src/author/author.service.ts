@@ -16,10 +16,14 @@ export class AuthorService {
     // orcid client -> getAuthorInfo()
     // output -> processsed to send response to the API call.
     const { pubMedIds } = data;
+    if (!pubMedIds) {
+      return [];
+    }
 	  for (let i = 0; i < pubMedIds.length; i++) {
       console.log(pubMedIds[i]);
-      const orcidResponse = await this.orcidService.getOrcId(pubMedIds[i]);
-      console.log(orcidResponse)
+      const orcId = await this.orcidService.getOrcId(pubMedIds[i]);
+      console.log(`orcid: ${orcId}`)
+      const authorEmail = await this.orcidService.getOrcidEmail(orcId);
     }
     const author = {
       firstName: 'A.',
@@ -33,8 +37,6 @@ export class AuthorService {
       pmcId: 3539452,
       title: 'The Development and Activity-Dependent Expression of Aggrecan in the Cat Visual Cortex',
     }
-    const orcid = '0000-0003-1455-3370';
-    const response = await this.orcidService.getOrcidEmail(orcid);
     //console.log(`response: ${JSON.stringify(response, null, 2)}`);
     return [authorResponse];
   }
