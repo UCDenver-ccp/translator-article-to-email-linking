@@ -14,4 +14,4 @@ where _[OUTPUT\_PATH]_ is an __absolute path__ to a directory on the host machin
 * `pmids-not-available-as-full-text.txt`
     * a list of PMIDs (one per line) for articles that are in PMC but are not available as full text for text-mining purposes
 * `pmids-with-available-full-text.txt`
-    * a list of PMIDs (one per line) for articles that are in PMC and are availablae as full text for text-mining purposes
+    * a list of PMIDs (one per line) for articles that are in PMC and are available as full text for text-mining purposes
