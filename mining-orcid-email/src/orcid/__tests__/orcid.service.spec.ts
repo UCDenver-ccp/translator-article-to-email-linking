@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrcidClient } from '../orcid.client';
 import { OrcidService } from '../orcid.service';
 import { OrcidModule } from '../orcid.module';
-import { orcidResponse } from '../../../test/test.fixtures';
+import { orcidEmailResponseNoEmail, orcidResponse } from '../../../test/test.fixtures';
 
 
 describe('OrcidService', () => {
@@ -38,6 +38,27 @@ describe('OrcidService', () => {
             expect(orcId).toEqual('0000-0002-4256-9639');
         });
         it('should return empty orcid', async () => {
+            jest.spyOn(client, 'getOrcId').mockResolvedValue("incorrect xml");
+            const pubMedId = 22368089;
+            const orcId = await service.getOrcId(pubMedId);
+            console.log(orcId)
+            expect(orcId).toEqual('');
+        });
+    });
+    describe('#getEmailFromOrcId', () => {
+        beforeEach(() => {
+            jest.spyOn(client, 'getOrcidEmail').mockResolvedValue(orcidEmailResponseNoEmail);
+        });
+
+        it('should return empty object', async () => {
+            const orcId = '0000-0002-4256-9639';
+            const orcIdResponse = await service.getOrcidEmail(orcId);
+            expect(orcIdResponse).toEqual({
+                name: '',
+                email: '',
+            });
+        });
+        it('should return valid orcid response object', async () => {
             jest.spyOn(client, 'getOrcId').mockResolvedValue("incorrect xml");
             const pubMedId = 22368089;
             const orcId = await service.getOrcId(pubMedId);

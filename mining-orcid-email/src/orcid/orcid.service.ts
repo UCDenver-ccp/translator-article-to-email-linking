@@ -9,6 +9,7 @@ export class OrcidService {
   constructor(private readonly orcidClient: OrcidClient) {}
 
   retrieveEmail(orcidEmailResponse: string): OrcidEmailResponseInterface {
+    console.log(orcidEmailResponse)
     if(validate(orcidEmailResponse) === true) { //optional (it'll return an object in case it's not valid)
       const orcidJson = parse(orcidEmailResponse, {});
       if (
@@ -40,17 +41,30 @@ export class OrcidService {
   }
 
   async getOrcidEmail(orcid: string) {
-    const response = await this.orcidClient.getOrcidEmail(orcid);
-    const email = this.retrieveEmail(response);
-    console.log(email);
-    return response;
+    const response = await this.orcidClient.getOrcIdEmail(orcid);
+    if (response) {
+      const emailObj = this.retrieveEmail(response);
+      console.log(emailObj);
+      return emailObj;
+    }
+    return {
+      name: '',
+      email: '',
+    }
   }
 
   retrieveOrcid(orcidResponse: string): string {
     if(validate(orcidResponse) === true) { //optional (it'll return an object in case it's not valid)
       const orcidJson = parse(orcidResponse, {});
-      const orcid = orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path'];
-      return orcid
+      if (
+        orcidJson['search:search'] &&
+        orcidJson['search:search']['search:result'] &&
+        orcidJson['search:search']['search:result']['common:orcid-identified'] &&
+        orcidJson['search:search']['search:result']['common:orcid-identified']['common:path']
+      ) {
+        const orcid = orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path'];
+        return orcid
+      }
     }
     return ''
   }

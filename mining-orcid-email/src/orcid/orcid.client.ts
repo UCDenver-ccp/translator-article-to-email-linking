@@ -56,13 +56,16 @@ export class OrcidClient {
     }
   }
   
-  public async getOrcidEmail(orcId: string) {
+  public async getOrcIdEmail(orcId: string) {
     //orcId = '0000-0003-1455-3370';
-    const url = `https://pub.orcid.org/v2.1/${orcId}/email`;
-    const token = this.configService.get('ORCID_AUTH_KEY');
-    //console.log(`token: ${process.env.ORCID_AUTH_KEY}`);
-    const response = await this.makeRequest('GET', url, token);
-    return response;
+    if (orcId) {
+      const url = `https://pub.orcid.org/v2.1/${orcId}/email`;
+      const token = this.configService.get('ORCID_AUTH_KEY');
+      //console.log(`token: ${process.env.ORCID_AUTH_KEY}`);
+      const response = await this.makeRequest('GET', url, token);
+      return response;
+    }
+    return undefined;
   }
 
   public async getOrcId(pubMedId: number) {
