@@ -22,9 +22,11 @@ export class AuthorService {
     const authorResponses = []
 	  for (let i = 0; i < pubMedIds.length; i++) {
       const orcId = await this.orcidService.getOrcId(pubMedIds[i]);
+      if (orcId) {
+        console.log(orcId)
+      }
       //console.log(`pubmed id: ${pubMedIds[i]}, orcid: ${orcId}`)
       const { name, email } = await this.orcidService.getOrcidEmail(orcId);
-      console.log(name, email)
       const entry = {
         authors: [{name, email, orcId}],
         pubMedId: pubMedIds[i],

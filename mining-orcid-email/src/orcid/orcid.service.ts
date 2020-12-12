@@ -9,7 +9,6 @@ export class OrcidService {
   constructor(private readonly orcidClient: OrcidClient) {}
 
   retrieveEmail(orcidEmailResponse: string): OrcidEmailResponseInterface {
-    console.log(orcidEmailResponse)
     if(validate(orcidEmailResponse) === true) { //optional (it'll return an object in case it's not valid)
       const orcidJson = parse(orcidEmailResponse, {});
       if (
@@ -59,8 +58,8 @@ export class OrcidService {
       if (
         orcidJson['search:search'] &&
         orcidJson['search:search']['search:result'] &&
-        orcidJson['search:search']['search:result']['common:orcid-identified'] &&
-        orcidJson['search:search']['search:result']['common:orcid-identified']['common:path']
+        orcidJson['search:search']['search:result']['common:orcid-identifier'] &&
+        orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path']
       ) {
         const orcid = orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path'];
         return orcid
