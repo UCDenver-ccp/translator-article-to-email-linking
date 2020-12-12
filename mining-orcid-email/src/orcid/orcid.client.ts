@@ -56,22 +56,22 @@ export class OrcidClient {
     }
   }
   
-  public async getOrcidEmail(orcId: string) {
+  public async getOrcIdEmail(orcId: string) {
+    //orcId = '0000-0003-1455-3370';
+    if (orcId) {
       const url = `https://pub.orcid.org/v2.1/${orcId}/email`;
       const token = this.configService.get('ORCID_AUTH_KEY');
       //console.log(`token: ${process.env.ORCID_AUTH_KEY}`);
       const response = await this.makeRequest('GET', url, token);
-      let xmlParser = require('xml2json');
-      const jsonOutput = xmlParser.toJson(response);
-      console.log(jsonOutput);
       return response;
+    }
+    return undefined;
   }
 
   public async getOrcId(pubMedId: number) {
     const url = `https://pub.orcid.org/v3.0/search/?q=pmid-self:${pubMedId}`;
     const token = this.configService.get('ORCID_AUTH_KEY');
     const response = await this.makeRequest('GET', url, token);
-    console.log(`orcid response: ${response}`);
     return response;
   }
 }
