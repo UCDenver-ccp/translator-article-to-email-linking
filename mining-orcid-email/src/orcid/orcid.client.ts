@@ -1,6 +1,8 @@
 import { Injectable, HttpService, Logger, HttpStatus, HttpException } from '@nestjs/common';
 import { ConfigService} from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Method } from 'axios';
+import { SSL_OP_EPHEMERAL_RSA } from 'constants';
 
 @Injectable()
 export class OrcidClient {
@@ -55,6 +57,10 @@ export class OrcidClient {
       throw new HttpException(errorData, status);
     }
   }
+
+  async sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
   
   public async getOrcIdEmail(orcId: string) {
     //orcId = '0000-0003-1455-3370';
@@ -62,8 +68,18 @@ export class OrcidClient {
       const url = `https://pub.orcid.org/v2.1/${orcId}/email`;
       const token = this.configService.get('ORCID_AUTH_KEY');
       //console.log(`token: ${process.env.ORCID_AUTH_KEY}`);
-      const response = await this.makeRequest('GET', url, token);
-      return response;
+      let numRetries = 0;
+      while (numRetries < 5) {
+        try {
+          const response = await this.makeRequest('GET', url, token);
+          return response;
+        } catch (error) {
+          console.log(error)
+          console.log(`retry: ${numRetries}`)
+          ++numRetries;
+          this.sleep(100);
+        }
+      }
     }
     return undefined;
   }
@@ -71,7 +87,20 @@ export class OrcidClient {
   public async getOrcId(pubMedId: number) {
     const url = `https://pub.orcid.org/v3.0/search/?q=pmid-self:${pubMedId}`;
     const token = this.configService.get('ORCID_AUTH_KEY');
-    const response = await this.makeRequest('GET', url, token);
-    return response;
+    let responseReceived = false;
+    let numRetries = 0;
+    while (numRetries < 5) {
+      try {
+        const response = await this.makeRequest('GET', url, token);
+        if (numRetries > 1) {
+          console.log(`pubmed id: ${pubMedId} done.`)
+        }
+        return response;
+      } catch (error) {
+        console.log(`retrying ${pubMedId}: ${numRetries}`)
+        ++numRetries;
+        this.sleep(100);
+      }
+    }
   }
 }

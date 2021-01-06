@@ -9,34 +9,51 @@ export class OrcidService {
   constructor(private readonly orcidClient: OrcidClient) {}
 
   retrieveEmail(orcidEmailResponse: string): OrcidEmailResponseInterface {
-    console.log(orcidEmailResponse)
+    let name, email;
     if(validate(orcidEmailResponse) === true) { //optional (it'll return an object in case it's not valid)
       const orcidJson = parse(orcidEmailResponse, {});
+      //console.log(JSON.stringify(orcidJson, null, 2))
       if (
-          orcidJson['email:emails'] && 
-          orcidJson['email:emails']['email:email'] && 
+          orcidJson['email:emails'] &&
+          orcidJson['email:emails']['email:email'] &&
           orcidJson['email:emails']['email:email']['email:email']
       ) {
-        const email = orcidJson['email:emails']['email:email']['email:email'];
-        let name = '';
+        email = orcidJson['email:emails']['email:email']['email:email'];
         if (
-            orcidJson['email:emails'] && 
-            orcidJson['email:emails']['email:email'] && 
+            orcidJson['email:emails'] &&
+            orcidJson['email:emails']['email:email'] &&
             orcidJson['email:emails']['email:email']['common:source'] &&
             orcidJson['email:emails']['email:email']['common:source']['common:source-name']
         ) {
           name = orcidJson['email:emails']['email:email']['common:source']['common:source-name'];
         }
-        return {
-          email, name
+      } else if (
+          orcidJson['email:emails'] &&
+          orcidJson['email:emails']['email:email']
+        ) {
+        const entries = orcidJson['email:emails']['email:email']
+        for (let index = 0; index < entries.length; index++) {
+          const entry = entries[index];
+          console.log(entry)
+          if (entry['email:email']) {
+            email = entry['email:email']
+          }
+          if (
+            entry['common:source'] &&
+            entry['common:source']['common:source-name']
+          ) {
+            name = entry['common:source']['common:source-name']
+          }
+          console.log(`Email: ${email}, name: ${name}`)
+          if (email) {
+            break
+          }
         }
-      } else {
-        console.log(`unable to find email from orcid response: ${JSON.stringify(orcidJson, null, 2)}`);
       }
     }
     return {
-      name: '',
-      email: '',
+      name,
+      email,
     }
   }
 
@@ -44,7 +61,6 @@ export class OrcidService {
     const response = await this.orcidClient.getOrcIdEmail(orcid);
     if (response) {
       const emailObj = this.retrieveEmail(response);
-      console.log(emailObj);
       return emailObj;
     }
     return {
@@ -59,8 +75,8 @@ export class OrcidService {
       if (
         orcidJson['search:search'] &&
         orcidJson['search:search']['search:result'] &&
-        orcidJson['search:search']['search:result']['common:orcid-identified'] &&
-        orcidJson['search:search']['search:result']['common:orcid-identified']['common:path']
+        orcidJson['search:search']['search:result']['common:orcid-identifier'] &&
+        orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path']
       ) {
         const orcid = orcidJson['search:search']['search:result']['common:orcid-identifier']['common:path'];
         return orcid
