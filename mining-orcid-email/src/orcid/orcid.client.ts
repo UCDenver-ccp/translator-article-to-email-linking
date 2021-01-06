@@ -1,8 +1,6 @@
 import { Injectable, HttpService, Logger, HttpStatus, HttpException } from '@nestjs/common';
 import { ConfigService} from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Method } from 'axios';
-import { SSL_OP_EPHEMERAL_RSA } from 'constants';
 
 @Injectable()
 export class OrcidClient {
