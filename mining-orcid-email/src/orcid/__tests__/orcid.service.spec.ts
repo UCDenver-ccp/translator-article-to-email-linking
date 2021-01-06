@@ -47,7 +47,7 @@ describe('OrcidService', () => {
     });
     describe('#getEmailFromOrcId', () => {
         beforeEach(() => {
-            jest.spyOn(client, 'getOrcidEmail').mockResolvedValue(orcidEmailResponseNoEmail);
+            jest.spyOn(client, 'getOrcIdEmail').mockResolvedValue(orcidEmailResponseNoEmail);
         });
 
         it('should return empty object', async () => {

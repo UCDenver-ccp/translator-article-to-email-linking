@@ -103,7 +103,7 @@ describe('OrcidClient', () => {
       });
     });
 
-    describe('when Front rejects the request', () => {
+    describe('when orcid rejects the request', () => {
       it('should log the error and throw HttpException', async () => {
         const err: AxiosError<any> = {
           name: 'Error',
@@ -145,4 +145,47 @@ describe('OrcidClient', () => {
       });
     });
   });
+    describe('getOrcId', () => {
+      it('should retry five times before failing', async () => {
+        const err: AxiosError<any> = {
+          name: 'Error',
+          message: '400 Bad Request',
+          response: {
+            status: 400,
+            data: { errors: [{ message: 'Orcid Test Error' }] },
+            statusText: 'Bad Request',
+            config: undefined,
+            headers: undefined,
+          },
+          config: undefined,
+          isAxiosError: false,
+          toJSON: jest.fn(),
+        };
+        const requestSpy = jest.spyOn(httpService, 'request').mockImplementation(() => of(Promise.reject(err) as any));
+        await client.getOrcId(1234);
+        expect(requestSpy).toBeCalledTimes(5);
+      });
+      it('should retry once before passing', async () => {
+        const err: AxiosError<any> = {
+          name: 'Error',
+          message: '400 Bad Request',
+          response: {
+            status: 400,
+            data: { errors: [{ message: 'Orcid Test Error' }] },
+            statusText: 'Bad Request',
+            config: undefined,
+            headers: undefined,
+          },
+          config: undefined,
+          isAxiosError: false,
+          toJSON: jest.fn(),
+        };
+        const requestSpy = jest.spyOn(httpService, 'request').mockImplementationOnce(() => of(Promise.reject(err) as any));
+        jest
+          .spyOn(httpService, 'request')
+          .mockImplementation(() => of({ data: { message: 'Orcid Test Response' } } as any));
+        await client.getOrcId(1234);
+        expect(requestSpy).toBeCalledTimes(2);
+      });
+    });
 });
