@@ -36,6 +36,10 @@ for pubmed_ids_batch in batch(pubmed_ids, batch_size):
         authorResponse = json.loads(response.text)
         entries = authorResponse['authorsWithOrcid']
         entriesWithoutOrcid = authorResponse['authorsWithoutOrcid']
+        with open("authorsWithoutOrcid.txt", "a") as file_object:
+            for pubMedId in entriesWithoutOrcid:
+                # Append 'hello' at the end of file
+                file_object.write("%i\n" % pubMedId)
         print(f'Authors without ORCID: {entriesWithoutOrcid}')
         for entry in entries: 
             for author in entry['authors']: 
