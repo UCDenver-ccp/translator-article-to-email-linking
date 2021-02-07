@@ -1,12 +1,18 @@
+import { PubMedPublicationResponseInterface } from '../../pubmed/dto/pubmed.publication.response.interface';
+
 export interface authorInterface {
   name: string;
   email: string;
   orcId: string;
 };
 
-export interface AuthorResponseInterface {
+export interface AuthorWithOrcid {
   authors: authorInterface[];
   pubMedId: number;
-  pmcId: number;
-  title: string;
+  publication:  PubMedPublicationResponseInterface;
 }
+
+export interface AuthorResponseInterface {
+  authorsWithOrcid: AuthorWithOrcid[];
+  authorsWithoutOrcid: number[];
+};

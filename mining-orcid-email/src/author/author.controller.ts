@@ -8,7 +8,7 @@ export class AuthorController {
   constructor(private authorService: AuthorService) {}
 
   @Get()
-  async findAll(@Body() data: AuthorDto): Promise<AuthorResponseInterface[]> {
+  async findAll(@Body() data: AuthorDto): Promise<AuthorResponseInterface> {
     return await this.authorService.getAuthors(data);
   }
 }
