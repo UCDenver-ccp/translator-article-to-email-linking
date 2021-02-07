@@ -12,7 +12,6 @@ export class OrcidService {
     let name, email;
     if(validate(orcidEmailResponse) === true) { //optional (it'll return an object in case it's not valid)
       const orcidJson = parse(orcidEmailResponse, {});
-      //console.log(JSON.stringify(orcidJson, null, 2))
       if (
           orcidJson['email:emails'] &&
           orcidJson['email:emails']['email:email'] &&
@@ -34,23 +33,39 @@ export class OrcidService {
         const entries = orcidJson['email:emails']['email:email']
         for (let index = 0; index < entries.length; index++) {
           const entry = entries[index];
-          console.log(entry)
+          let currentEmail = '';
+          let currentName = '';
           if (entry['email:email']) {
-            email = entry['email:email']
+            currentEmail = entry['email:email']
           }
           if (
             entry['common:source'] &&
             entry['common:source']['common:source-name']
           ) {
-            name = entry['common:source']['common:source-name']
+            currentName = entry['common:source']['common:source-name']
           }
           console.log(`Email: ${email}, name: ${name}`)
-          if (email) {
+          if (!name) {
+            name = currentName;
+          } else {
+            if (name !== currentName) {
+              name = `${name}, ${currentName}`
+            }
+          }
+          if (!email) {
+            email = currentEmail;
+          } else {
+            if (email !== currentEmail) {
+              email = `${email}, ${currentEmail}`
+            }
+          }
+          if (name && email) {
             break
           }
         }
       }
     }
+    console.log(`Final: Email: ${email}, name: ${name}`)
     return {
       name,
       email,
