@@ -1,14 +1,15 @@
 import sys
 import json
 import requests
+import time
 
 def batch(iterable, n=1):
     l = len(iterable)
     for ndx in range(0, l, n):
         yield iterable[ndx:min(ndx + n, l)]
 
-#filename = './output/pmids-not-available-as-full-text.txt'
-filename = './output/pmids-sample.txt'
+filename = './output/pmids-not-available-as-full-text.txt'
+#filename = './output/pmids-sample.txt'
 with open(filename) as f:
     lines = f.readlines()
 
@@ -46,14 +47,15 @@ for pubmed_ids_batch in batch(pubmed_ids, batch_size):
                 author_orcid = author.get('orcId', '')
                 author_email = author.get('email', '')
                 if author_orcid:
-                    authors_with_orcid += 1 
-                if author_orcid and author_email:
+                    authors_with_orcid += 1
+                if author_email:
+                    authors_with_email += 1
                     pubmed_id = entry['pubMedId']
-                    orcid = author['orcId']
                     print(f'PubMed Id: {pubmed_id}, author: {author}')
                     authors_with_email += 1
     print(f'Authors with orcid: {authors_with_orcid}, Authors with email: {authors_with_email}')
     batch_num += 1
+    time.sleep(60)
 
     
 

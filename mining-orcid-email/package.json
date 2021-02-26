@@ -27,6 +27,7 @@
     "@nestjs/microservices": "^7.5.5",
     "@nestjs/platform-express": "^7.5.5",
     "class-validator": "^0.12.2",
+    "event-stream": "^4.0.1",
     "jsdom": "^16.4.0",
     "node-fetch": "^2.6.1",
     "reflect-metadata": "^0.1.13",

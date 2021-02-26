@@ -2,20 +2,69 @@ import { Injectable, HttpService, Logger } from '@nestjs/common';
 import { OrcidService } from '../orcid/orcid.service';
 import { PubMedService } from '../pubmed/pubmed.service';
 import { AuthorDto } from './dto/author-input.dto';
+import { csvEntry, csvLine } from './dto/csv-entry.interface';
 import { AuthorResponseInterface } from './dto/author-response.interface';
 import { toDisk } from 'objects-to-csv';
 
 @Injectable()
 export class AuthorService {
+
+  public csvMap;
+
   constructor(
     private readonly httpService: HttpService, 
     private readonly orcidService: OrcidService,
     private readonly pubMedService: PubMedService,
-  ) {}
+  ) {
+    this.csvMap = new Map<string, csvEntry>();
+    this.createCSVMap(this.csvMap);
+  }
   logger = new Logger(AuthorService.name);
 
   async sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async createCSVMap(csvMap) {
+    let csv= require('fast-csv');
+    let fs = require('fs');
+    let es = require('event-stream');
+
+    const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/out.csv';
+    let lineNr = 0;
+    let headers;
+    let s = fs.createReadStream(filePath)
+      .pipe(es.split())
+      .pipe(es.mapSync(function(line){
+          // pause the readstream
+          s.pause();
+          if (lineNr === 0) {
+            headers = line.split(",");
+          } else {
+            const obj = <csvLine>{};
+            const currentline = line.split(",");
+            for(let j=0;j<headers.length;j++){
+              obj[headers[j]] = currentline[j];
+            }
+            if (obj) {
+              const { PMID, Email, Affiliation, Department, Institution } = obj;
+              if (PMID) {
+                csvMap.set(PMID, {Email, Affiliation, Department, Institution});
+              }
+            }
+          }
+          lineNr += 1;
+          // resume the readstream, possibly from a callback
+          s.resume();
+      })
+      .on('error', function(err){
+          console.log('Error while reading file.', err);
+      })
+      .on('end', function(){
+        console.log('Read entire file.')
+        console.log(csvMap.size);
+      })
+    );
   }
 
   async writeToCsv(entries) {
@@ -23,7 +72,6 @@ export class AuthorService {
     const result = [];
     const map = new Map();
     for (const item of entries) {
-        console.log(item)
         if(!map.has(item.pubMedId)){
             map.set(item.pubMedId, true);    // set any value to Map
             result.push({
@@ -58,15 +106,25 @@ export class AuthorService {
       return authorResponse;
     }
     const authorResponses = []
+    let name, email;
 	  for (let i = 0; i < pubMedIds.length; i++) {
       const pubMedId = pubMedIds[i];
+      email = '';
+      name = '';
       const orcId = await this.orcidService.getOrcId(pubMedId);
-      if (orcId) {
-        console.log(orcId)
+      if (!orcId) {
+        // check to see if the PMID is in the map.
+        const csvMapEntry = this.csvMap.get(pubMedId.toString());
+        if (csvMapEntry) {
+          email = csvMapEntry.Email;
+        } else {
+          authorsNoOrcids.push(pubMedId);
+        }
       } else {
-        authorsNoOrcids.push(pubMedId)
+        const orcidResponse = await this.orcidService.getOrcidEmail(orcId);
+        name = orcidResponse.name;
+        email = orcidResponse.email;
       }
-      const { name, email } = await this.orcidService.getOrcidEmail(orcId);
       const authorEntry = { name, email, orcId };
       if (name || email) {
         const { FullJournalName, Title, ISSN, DOI, LastAuthor, AuthorList, SO } = await this.pubMedService.getPublicationInfo(pubMedId, 'docsum');
@@ -86,7 +144,7 @@ export class AuthorService {
         entries.push(csvEntry);
         const entry = {
           authors: [authorEntry],
-          pubMedId: pubMedIds[i],
+          pubMedId: pubMedId,
           title: Title,
           issn: ISSN,
           doi: DOI,
