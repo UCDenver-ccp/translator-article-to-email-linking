@@ -30,7 +30,8 @@ export class AuthorService {
     let fs = require('fs');
     let es = require('event-stream');
 
-    const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/out.csv';
+    //const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/out_100000.csv';
+    const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/OA04_Affiliations_With_Emails.csv';
     let lineNr = 0;
     let headers;
     let s = fs.createReadStream(filePath)
@@ -49,7 +50,12 @@ export class AuthorService {
             if (obj) {
               const { PMID, Email, Affiliation, Department, Institution } = obj;
               if (PMID) {
-                csvMap.set(PMID, {Email, Affiliation, Department, Institution});
+                const csvMapEntry = csvMap.get(PMID);
+                if (csvMapEntry) {
+                  csvMapEntry.Email += `,${Email}`;
+                } else {
+                  csvMap.set(PMID, {Email, Affiliation, Department, Institution});
+                }
               }
             }
           }
@@ -61,8 +67,7 @@ export class AuthorService {
           console.log('Error while reading file.', err);
       })
       .on('end', function(){
-        console.log('Read entire file.')
-        console.log(csvMap.size);
+        console.log(`Read entire file: ${csvMap.size}`);
       })
     );
   }
@@ -90,8 +95,7 @@ export class AuthorService {
         }
     }
     const csv = new ObjectsToCsv(result);
-    await csv.toDisk('./list.csv', { append: true });
-
+    await csv.toDisk('./AuthorEmails.csv', { append: true });
   }
 
   async getAuthors(data: AuthorDto): Promise<AuthorResponseInterface> {
@@ -112,21 +116,25 @@ export class AuthorService {
       email = '';
       name = '';
       const orcId = await this.orcidService.getOrcId(pubMedId);
-      if (!orcId) {
-        // check to see if the PMID is in the map.
+      if (orcId) {
+        const orcidResponse = await this.orcidService.getOrcidEmail(orcId);
+        name = orcidResponse.name;
+        email = orcidResponse.email;
+      }
+      if (!email) {
+        // Find the email in the CSV map.
         const csvMapEntry = this.csvMap.get(pubMedId.toString());
         if (csvMapEntry) {
           email = csvMapEntry.Email;
         } else {
           authorsNoOrcids.push(pubMedId);
+          this.sleep(100);
+          continue;
         }
-      } else {
-        const orcidResponse = await this.orcidService.getOrcidEmail(orcId);
-        name = orcidResponse.name;
-        email = orcidResponse.email;
       }
-      const authorEntry = { name, email, orcId };
+      // Have we found a name or email yet?
       if (name || email) {
+        const authorEntry = { name, email, orcId };
         const { FullJournalName, Title, ISSN, DOI, LastAuthor, AuthorList, SO } = await this.pubMedService.getPublicationInfo(pubMedId, 'docsum');
         const csvEntry = {
           pubMedId,

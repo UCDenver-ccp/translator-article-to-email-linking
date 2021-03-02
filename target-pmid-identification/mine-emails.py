@@ -21,7 +21,7 @@ headers = {
 
 batch_size = 1000
 pubmed_ids = [int(numeric_string) for numeric_string in lines]
-#remaining_pubmed_ids = pubmed_ids[(298 + 718 + 150)*batch_size:]
+#remaining_pubmed_ids = pubmed_ids[(713)*batch_size:]
 
 authors_with_orcid = 0
 authors_with_email = 0
@@ -52,10 +52,6 @@ for pubmed_ids_batch in batch(pubmed_ids, batch_size):
                     authors_with_email += 1
                     pubmed_id = entry['pubMedId']
                     print(f'PubMed Id: {pubmed_id}, author: {author}')
-                    authors_with_email += 1
     print(f'Authors with orcid: {authors_with_orcid}, Authors with email: {authors_with_email}')
     batch_num += 1
     time.sleep(60)
-
-    
-
