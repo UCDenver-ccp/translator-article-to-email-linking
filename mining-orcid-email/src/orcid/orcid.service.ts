@@ -44,7 +44,6 @@ export class OrcidService {
           ) {
             currentName = entry['common:source']['common:source-name']
           }
-          console.log(`Email: ${email}, name: ${name}`)
           if (!name) {
             name = currentName;
           } else {
@@ -60,12 +59,12 @@ export class OrcidService {
             }
           }
           if (name && email) {
+            console.log(`Found: Email: ${email}, name: ${name}`)
             break
           }
         }
       }
     }
-    console.log(`Final: Email: ${email}, name: ${name}`)
     return {
       name,
       email,
