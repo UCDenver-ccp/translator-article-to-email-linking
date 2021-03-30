@@ -8,8 +8,8 @@ def batch(iterable, n=1):
     for ndx in range(0, l, n):
         yield iterable[ndx:min(ndx + n, l)]
 
-filename = './output/pmids-not-available-as-full-text.txt'
-#filename = './output/pmids-sample.txt'
+#filename = './output/pmids-not-available-as-full-text.txt'
+filename = './output/pmids-sample.txt'
 with open(filename) as f:
     lines = f.readlines()
 

@@ -30,8 +30,7 @@ export class AuthorService {
     let fs = require('fs');
     let es = require('event-stream');
 
-    //const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/out_100000.csv';
-    const filePath = '/Users/shwetabhandare/workspace/translator-article-to-email-linking/mining-orcid-email/OA04_Affiliations_With_Emails.csv';
+    const filePath = 'OA04_Affiliations_100000_With_Emails.csv';
     let lineNr = 0;
     let headers;
     let s = fs.createReadStream(filePath)
