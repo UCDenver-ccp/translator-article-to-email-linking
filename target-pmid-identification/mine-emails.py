@@ -2,6 +2,7 @@ import sys
 import json
 import requests
 import time
+import datetime
 
 def batch(iterable, n=1):
     l = len(iterable)
@@ -19,13 +20,14 @@ headers = {
   'Content-Type': 'application/json'
 }
 
-batch_size = 1000
+batch_size = 10
 pubmed_ids = [int(numeric_string) for numeric_string in lines]
-#remaining_pubmed_ids = pubmed_ids[(713)*batch_size:]
+#remaining_pubmed_ids = pubmed_ids[(105+104+399+24+22+326+126+9+169+3+125+19+33+42+26+4+783)*batch_size:]
 
 authors_with_orcid = 0
 authors_with_email = 0
 batch_num = 0
+#for pubmed_ids_batch in batch(remaining_pubmed_ids, batch_size):
 for pubmed_ids_batch in batch(pubmed_ids, batch_size):
     print(f'Starting batch: {batch_num}')
     body = {
@@ -41,7 +43,7 @@ for pubmed_ids_batch in batch(pubmed_ids, batch_size):
             for pubMedId in entriesWithoutOrcid:
                 # Append 'hello' at the end of file
                 file_object.write("%i\n" % pubMedId)
-        print(f'Authors without ORCID: {entriesWithoutOrcid}')
+        #print(f'Authors without ORCID: {entriesWithoutOrcid}')
         for entry in entries: 
             for author in entry['authors']: 
                 author_orcid = author.get('orcId', '')
@@ -52,6 +54,7 @@ for pubmed_ids_batch in batch(pubmed_ids, batch_size):
                     authors_with_email += 1
                     pubmed_id = entry['pubMedId']
                     print(f'PubMed Id: {pubmed_id}, author: {author}')
+    print(datetime.datetime.now())
     print(f'Authors with orcid: {authors_with_orcid}, Authors with email: {authors_with_email}')
     batch_num += 1
     time.sleep(60)
